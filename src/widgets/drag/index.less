@@ -1,0 +1,29 @@
+// @import "../../config/style/index";
+@prefix: fan-;
+@space-s: 4px;
+@space-default: 8px;
+@color-primary: #8dc63f;
+@motion-func-default: ease-in-out;
+@motion-duration-default: 0.3s;
+
+.transition(@property: all, @duration: @motion-duration-default, @func: @motion-func-default) {
+  transition+: @property @duration @func 0s;
+}
+
+.@{prefix}sort {
+  position: relative;
+  font-size: 14px;
+
+  .@{prefix}sort-item {
+    // transform: translate3d(0,0,0);
+    margin-bottom: 2px;
+    padding: @space-default @space-default;
+    background-color: @color-primary;
+    .transition();
+  }
+
+  .@{prefix}sort-placeholder {
+    opacity: .5;
+  }
+
+}
