@@ -1,6 +1,7 @@
 const PATH = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const theme = require('./theme.js');
 
 module.exports = {
   entry: [PATH.resolve(__dirname, './src')],
@@ -25,10 +26,13 @@ module.exports = {
       include: PATH.resolve(__dirname, './src'),
       query: {
         presets: ['es2015', 'stage-2', 'react'],
+        plugins: [
+          ['import', [{ libraryName: 'antd', style: true }]],
+        ]
       },
     }, {
       test: /\.less$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader!less-loader'),
+      loader: ExtractTextPlugin.extract('style-loader', `css-loader!less-loader?{modifyVars:${JSON.stringify(theme)}}`),
     }, {
       test: /\.css$/,
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),

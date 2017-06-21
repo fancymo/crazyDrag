@@ -143,9 +143,15 @@
     margin-left: @col-11;
   }
 
+  &.border {
+    & > div[class^=fan-col] {
+      border: 1px solid #333;
+    }
+  }
+
 }
 
-.layout-container {
+.demo.edit {
   .@{prefix}row {
     padding-top: 30px;
     padding-bottom: 8px;
@@ -191,5 +197,11 @@
         top: -1px;
       }
     }
+
+    &.border {
+    & > div[class^=fan-col] {
+      border: 1px solid #333;
+    }
+  }
   }
 }

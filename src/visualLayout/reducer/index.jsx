@@ -7,7 +7,7 @@ const row = (state = {}, action) => {
   }
 };
 
-const page = (state = {}, action) => {
+const page = (state = { editable: true }, action) => {
   switch (action.type) {
     case 'UPDATE_PAGE': return { ...state, ...action.data };
     default: return state;

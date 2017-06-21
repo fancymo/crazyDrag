@@ -40,7 +40,8 @@ class Box extends React.Component {
     });
     return (
       <div className={cls} draggable ref={(box) => { this.box = box; }}>
-        <span className="remove" onClick={this.handleRemove}>删除</span>
+        <span className="opt-remove" onClick={this.handleRemove}>删除</span>
+        <span className="opt-border" onClick={this.handleToggleBoder}>边框</span>
         <div className="preview">{preview}</div>
         <div className="view">{children}</div>
       </div>);
@@ -138,7 +139,8 @@ class Box extends React.Component {
   /* drag end */
 
   handleEventBind(node) {
-    node.querySelector('.remove').addEventListener('click', this.handleRemove);
+    node.querySelector('.opt-remove').addEventListener('click', this.handleRemove);
+    node.querySelector('.opt-border').addEventListener('click', this.handleToggleBoder);
   }
 
   /* 移除 */
@@ -146,6 +148,13 @@ class Box extends React.Component {
     const self = this;
     const dom = e.target.parentNode;
     dom.parentNode.removeChild(dom);
+  }
+
+  handleToggleBoder(e) {
+    const self = this;
+    const dom = e.target.parentNode;
+    const optDOM = e.target.parentNode.querySelector('.view').firstChild;
+    optDOM.classList.toggle('border');
   }
 }
 

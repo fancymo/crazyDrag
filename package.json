@@ -8,6 +8,7 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack -p --bail --progress --profile --colors"
   },
+  "theme": "./theme.js",
   "repository": {
     "type": "git",
     "url": ""
