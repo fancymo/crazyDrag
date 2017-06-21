@@ -2,17 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 
+import './index.less';
+
 const propTypes = {
   preview: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,
   ]), // 展示的标题
-  inline: PropTypes.bool  // 行内布局
+  inline: PropTypes.bool,  // 行内布局
+  border: PropTypes.bool,
+  mode: PropTypes.oneOf(['horizontal', 'vertical'])
 };
 
 const defaultProps = {
   preview: '标题',
-  inline: false
+  inline: false,
+  border: false,
 };
 
 class Box extends React.Component {
@@ -34,14 +39,17 @@ class Box extends React.Component {
   }
 
   render() {
-    const { preview, inline, children } = this.props;
+    const { preview, inline, border, mode, children } = this.props;
     const cls = ClassNames('box', 'draggable', {
-      inline
+      inline,
+      space: mode,
+      'space-horizontal': mode && mode === 'horizontal',
+      'space-vertical': mode && mode === 'vertical'
     });
     return (
       <div className={cls} draggable ref={(box) => { this.box = box; }}>
         <span className="opt-remove" onClick={this.handleRemove}>删除</span>
-        <span className="opt-border" onClick={this.handleToggleBoder}>边框</span>
+        { border && <span className="opt-border" onClick={this.handleToggleBoder}>边框</span> }
         <div className="preview">{preview}</div>
         <div className="view">{children}</div>
       </div>);
@@ -89,6 +97,13 @@ class Box extends React.Component {
     const newDOM = this.dragDOM.cloneNode(true);
     this.handleEventBind(newDOM);
     this.placeholder && dropDOM.replaceChild(newDOM, this.placeholder);
+
+    /* 处理 space element */
+    if (newDOM.classList.contains('space')) {
+      if (newDOM.classList.contains('space-horizontal')) {
+        dropDOM.style.display = 'flex';
+      }
+    }
 
     /* 移除事件、指针置空 */
     this.containers && this.containers.forEach((item) => {
@@ -139,14 +154,20 @@ class Box extends React.Component {
   /* drag end */
 
   handleEventBind(node) {
-    node.querySelector('.opt-remove').addEventListener('click', this.handleRemove);
-    node.querySelector('.opt-border').addEventListener('click', this.handleToggleBoder);
+    node.querySelector('.opt-remove') && node.querySelector('.opt-remove').addEventListener('click', this.handleRemove);
+    node.querySelector('.opt-border') && node.querySelector('.opt-border').addEventListener('click', this.handleToggleBoder);
   }
 
   /* 移除 */
   handleRemove(e) {
     const self = this;
     const dom = e.target.parentNode;
+
+    /* 移除 父元素 display: flex */
+    if (dom.classList.contains('space-horizontal')) {
+      dom.parentNode.style.display = 'block';
+    }
+
     dom.parentNode.removeChild(dom);
   }
 

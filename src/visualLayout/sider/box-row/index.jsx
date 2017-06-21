@@ -34,7 +34,7 @@ class BoxRow extends React.PureComponent {
       colRets.push(<Row.Col col={parseInt(item, 10)} key={index} />);
     });
     return (
-      <Box preview={<input defaultValue={defaultValue} onBlur={this.handleBlur} />} >
+      <Box preview={<input defaultValue={defaultValue} onBlur={this.handleBlur} />} border >
         <Row>{colRets}</Row>
       </Box>);
   }
