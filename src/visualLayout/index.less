@@ -46,12 +46,14 @@ li {
       width: 170px;
       flex-shrink: 0;
       // height: 25px;
-
+      [class^=opt-],
       .opt-border,
       .opt-remove {
         display: none;
       }
-
+      .pseudo-element {
+        display: none;
+      }
       .view {
         display: none;
       }
@@ -90,6 +92,7 @@ li {
 
     .box {
 
+      [class^=opt-],
       .opt-border,
       .opt-remove {
         display: none;
@@ -97,6 +100,9 @@ li {
 
       .preview {
         display: none;
+      }
+      .pseudo-element {
+
       }
 
       .view {
@@ -119,20 +125,77 @@ li {
   .box {
     position: relative;
 
+    /* space start */
+    .pseudo-element{
+      position: absolute;
+
+      &::after,
+      &::before {
+        position: absolute;
+        content: '';
+        display: inline-block;
+        background: #3498d8;
+      }
+    }
+
+    &.space-horizontal {
+
+      .pseudo-element {
+        top: 50%;
+        margin-top: 10px;  // 25 / 2 - 2
+        width: 100%;
+        height: 2px;
+        background: repeating-linear-gradient(45deg, #ebf5f8, #ebf5f8 4px, #3498d8 4px, #3498d8 8px);
+
+        &::after,
+        &::before {
+          width: 2px;
+          height: 6px;
+          margin-top: -2px;
+        }
+
+        &::after {
+          right: 0;
+        }
+      }
+    }
+
+    &.space-vertical {
+      height: 8px;
+      text-align: center;
+
+      .pseudo-element {
+        margin-top: 25px;  // 空出操作按钮间距
+        display: inline-block;
+        width: 2px;
+        height: 100%;
+        background: repeating-linear-gradient(45deg, #ebf5f8, #ebf5f8 4px, #3498d8 4px, #3498d8 8px);
+
+        &::after,
+        &::before {
+          margin-left: -3px;
+          width: 6px;
+          height: 2px;
+        }
+
+        &::after {
+          bottom: 0;
+        }
+      }
+    }
+    /* space end */
+
     .view {
       padding-top: 25px;
     }
 
-    .opt-border,
-    .opt-remove {
+    [class^=opt-] {
       display: inline-block;
-      opacity: .5;
-      position: absolute;
-      z-index: 1000;
-      right: 0;
+      z-index: 500;
       font-size: 12px;
-      background-color: #f4511e;
-      color: #fff;
+      color: #333;
+      background-color: #f5f5f5;
+      border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
       border-radius: 4px;
       padding: 2px 8px;
       overflow: hidden;
@@ -141,15 +204,37 @@ li {
       cursor: pointer;
       border: 1px solid transparent;
     }
+
+    .size-group,
+    & > [class^=opt-] {
+      opacity: .5;
+      position: absolute;
+    }
+    .opt-remove {
+      background-color: #f4511e;
+      color: #fff;
+      right: 0;
+    }
+
+    [class^=opt-] {
+    }
+    .size-group {
+      right: 112px;
+      white-space: nowrap;
+
+      & > [class^=opt-] {
+        margin-left: 8px;
+      }
+    }
     .opt-border {
+      position: absolute;
       right: 50px;
-      color: #333;
-      background-color: #f5f5f5;
-      // background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
-      border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     }
 
     &:hover {
+      z-index: 1000;
+
+      & > .size-group,
       & > .opt-border,
       & > .opt-remove {
         opacity: 1;
