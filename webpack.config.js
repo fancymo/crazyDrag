@@ -1,10 +1,11 @@
 const PATH = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const babelpolyfill = require('babel-polyfill');
 const theme = require('./theme.js');
 
 module.exports = {
-  entry: [PATH.resolve(__dirname, './src')],
+  entry: ['babel-polyfill', PATH.resolve(__dirname, './src')],
   output: {
     path: PATH.resolve(__dirname, './dist'),
     filename: '[name].js',
@@ -52,7 +53,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['', '.js', '.json', '.jsx'],
-    alisa: {},
+    alisa: {
+      style: PATH.resolve(__dirname, './src/config/modules/style/index.less')
+    },
   },
   eslint: {
     configFile: PATH.resolve(__dirname, './.eslintrc'),

@@ -1,0 +1,43 @@
+@import './index';
+
+*,
+*:before,
+*:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  font-size: calc(100vw / 37.5);
+
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-font-size: calc(100vw / 37.5);
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  height: 100%;
+  color: @text-primary-color;
+  font-size: @font-size-default;
+  font-family: @font-family-default;
+  line-height: @line-height-default;
+
+  -webkit-touch-callout: none;
+  -webkit-overflow-scrolling: touch;  //流畅滚动
+  user-select: none;
+}
+
+.@{prefix}label {
+  padding: @space-s @space-default;
+}
+
+a {
+  color: @color-primary;
+}
+a:focus, a:hover {
+    color: darken(@color-primary, 10%);
+    text-decoration: underline;
+}

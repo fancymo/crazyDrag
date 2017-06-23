@@ -1,0 +1,32 @@
+
+// 清除浮动，适应现代浏览器
+
+.clearfix-modern() {
+  &:before,
+  &:after {
+    display: table;
+    content: " ";
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+// 清除浮动，兼容低版本的浏览器
+
+.clearfix-compatible() {
+  zoom: 1; // IE6,IE7
+  &:after {
+    display: block;
+    height: 0;
+    content: " ";
+    visibility: hidden;
+    clear: both;
+  }
+}
+
+// 最好不使用overflow
+
+.clearfix() {
+  .clearfix-modern();
+}

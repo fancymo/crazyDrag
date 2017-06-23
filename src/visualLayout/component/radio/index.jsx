@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import Label from './label';
+import Label from '../label';
+
+import './index.less';
 
 const CLASS_PREFIX = 'fan-';
 const RADIO_CLASS = `${CLASS_PREFIX}radio`;

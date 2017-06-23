@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Box from '../box';
 import Configure from '../configure';
-import { Input, Label, Row, CheckBox } from '../component';
+import { Input, Label, Row, CheckBox, Radio } from '../component';
 import BoxRow from './box-row';
 import Action from '../action';
 import Store from '../store';
@@ -30,7 +30,8 @@ export default class Sider extends React.Component {
             <Box inline preview="Label" ><Label /></Box>
             <Box inline preview="输入框" ><Input /></Box>
             <Box inline preview="复选框" ><CheckBox /></Box>
-            <Box mode="horizontal" preview="水平间距" />
+            <Box inline preview="单选框" ><Radio /></Box>
+            <Box inline mode="horizontal" preview="水平间距" />
             <Box mode="vertical" preview="垂直间距" />
           </li>
         </ul>
