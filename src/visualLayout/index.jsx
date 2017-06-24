@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Sider from './sider';
 import Container from './container';
 import './index.less';
-import '../config/style/codemirror.less';
+// import '../config/style/codemirror.less';
 
 export default class Layout extends React.Component {
 

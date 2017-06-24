@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { Modal, Switch } from 'antd';
-// import CodeMirror from 'codemirror';
-import CodeMirror from 'react-codemirror';
+import CodeMirror from 'codemirror';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/htmlmixed/htmlmixed';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/css/css';
+import 'codemirror/mode/xml/xml';
 
 const propTypes = {
 
@@ -34,34 +38,21 @@ class CodeModal extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
-
   render() {
     const { page } = this.props;
     const { codeModal } = page;
-    const options = {
-      lineNumbers: true
-    };
-    const domFrag = document.createElement('div');
-    let code = '';
-    if (codeModal.data) {
-      code = codeModal.data && loopCheckout(codeModal.data);
-      domFrag.appendChild(code);
-    }
     return (
       <Modal title="下载模版" visible={codeModal.visible} onOk={this.props.onOk} onCancel={this.props.onCancel} width="80%">
         <div>
           <label htmlFor="switch">代码模式: </label><Switch checked={this.state.code} onChange={this.handleSwitchChange} checkedChildren={'开'} unCheckedChildren={'关'} />
         </div>
-        { this.state.code && <CodeMirror value={domFrag.innerHTML} options={options} /> }
         <div className="codebox" />
       </Modal>
     );
   }
 
   componentDidMount() {
-
+    this.handleLoadView();
   }
 
   componentDidUpdate() {
@@ -72,19 +63,48 @@ class CodeModal extends React.Component {
     this.setState({ code: checked });
   }
 
+  // 加载界面数据
   handleLoadView() {
-    if (this.state.code) return false;
-    const codeBox = document.getElementsByClassName('codebox')[0];
     const codeModal = this.props.page.codeModal;
+    const codeBox = document.getElementsByClassName('codebox')[0];
     let code;
-    if (codeModal.data) {
+    if (codeModal.data && codeModal.visible) {
       code = codeModal.data && loopCheckout(codeModal.data);
-      code.classList.remove('edit');
 
-      if (codeBox.childNodes.length) {
-        codeBox.replaceChild(code, codeBox.firstChild);
-      } else {
-        codeBox.appendChild(code);
+      if (this.state.code) {  // code
+        const domFrag = document.createElement('div');
+        domFrag.appendChild(code);
+        if (!this.codeMirrorDOM) {
+          const div = document.createElement('div');
+          codeBox.parentNode.insertBefore(div, codeBox);
+          this.codeMirrorDOM = CodeMirror(div, {
+            value: domFrag.innerHTML,
+            lineNumbers: true,
+            smartIndent: true,
+            tabSize: 2,
+            lineSeparator: null,
+            autoFocus: true,
+            mode: {
+              name: 'htmlmixed',
+              scriptTypes: [
+                {
+                  matches: /\/x-handlebars-template|\/x-mustache/i,
+                  mode: null
+                }]
+            }
+          });
+        } else {
+          // setTimeout(() => {
+          this.codeMirrorDOM.setValue(domFrag.innerHTML);
+          // this.codeMirrorDOM.display.input.focus();
+          // }, 0);
+        }
+      } else {  // view
+        if (codeBox.childNodes.length) {
+          codeBox.replaceChild(code, codeBox.firstChild);
+        } else {
+          codeBox.appendChild(code);
+        }
       }
     }
   }

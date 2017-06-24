@@ -1,6 +1,6 @@
 
 const flexible = (() => {
-  console.log('flexible');
+  // console.log('flexible');
   return this;
 })();
 

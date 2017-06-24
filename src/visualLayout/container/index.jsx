@@ -21,6 +21,7 @@ function loopChild(node) {
       }
     }
     if (item.classList.contains('demo')) {
+      item.classList.remove('edit');
       hasChild = true;
       elem = item.cloneNode(false);
     }
