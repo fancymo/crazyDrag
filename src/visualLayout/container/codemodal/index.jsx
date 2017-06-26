@@ -46,6 +46,7 @@ class CodeModal extends React.Component {
         <div>
           <label htmlFor="switch">代码模式: </label><Switch checked={this.state.code} onChange={this.handleSwitchChange} checkedChildren={'开'} unCheckedChildren={'关'} />
         </div>
+        <div className="codeview" />
         <div className="codebox" />
       </Modal>
     );
@@ -66,18 +67,19 @@ class CodeModal extends React.Component {
   // 加载界面数据
   handleLoadView() {
     const codeModal = this.props.page.codeModal;
-    const codeBox = document.getElementsByClassName('codebox')[0];
+    const codeBox = document.querySelector('.codebox');
+    const codeView = document.querySelector('.codeview');
     let code;
     if (codeModal.data && codeModal.visible) {
       code = codeModal.data && loopCheckout(codeModal.data);
 
       if (this.state.code) {  // code
+        codeBox.style.display = 'none';
+        codeView.style.display = 'block';
         const domFrag = document.createElement('div');
         domFrag.appendChild(code);
         if (!this.codeMirrorDOM) {
-          const div = document.createElement('div');
-          codeBox.parentNode.insertBefore(div, codeBox);
-          this.codeMirrorDOM = CodeMirror(div, {
+          this.codeMirrorDOM = CodeMirror(codeView, {
             value: domFrag.innerHTML,
             lineNumbers: true,
             smartIndent: true,
@@ -94,12 +96,13 @@ class CodeModal extends React.Component {
             }
           });
         } else {
-          // setTimeout(() => {
-          this.codeMirrorDOM.setValue(domFrag.innerHTML);
-          // this.codeMirrorDOM.display.input.focus();
-          // }, 0);
+          setTimeout(() => {
+            this.codeMirrorDOM.setValue(domFrag.innerHTML);
+          }, 0);
         }
       } else {  // view
+        codeView.style.display = 'none';
+        codeBox.style.display = 'block';
         if (codeBox.childNodes.length) {
           codeBox.replaceChild(code, codeBox.firstChild);
         } else {

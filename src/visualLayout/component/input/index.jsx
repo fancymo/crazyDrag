@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Input } from 'antd';
 
 const propTypes = {
 
@@ -8,7 +9,7 @@ const defaultProps = {
 
 };
 
-class Input extends React.Component {
+class CInput extends React.Component {
 
   constructor(props, context) {
     super(props, context);
@@ -16,14 +17,11 @@ class Input extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        <input className="input" style={{ width: '70px' }} />
-      </div>);
+    return (<Input className="input" style={{ width: '70px' }} />);
   }
 
   componentDidMount() {}
 
 }
 
-export default Input;
+export default CInput;

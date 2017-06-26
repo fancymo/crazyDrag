@@ -1,0 +1,12 @@
+@import "../../config/style/index.less";
+
+.withLabel {
+  &::before {
+    width: 50px;
+    content: attr(data-label);
+    margin-right: 3px;
+    font-size: 15px;
+    color: #bcb5b9;
+    color: var(--warm-gray);
+  }
+}

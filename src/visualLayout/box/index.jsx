@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Dropdown, Radio, Button } from 'antd';
+import Action from '../action';
 
 import './index.less';
 
@@ -29,13 +30,15 @@ class Box extends React.Component {
     this.state = {};
     [
       'handleDragStart',
+      'handleDragEnd',
       'handleDragOver',
       'handleDrop',
       'handleSlibingDragOver',
       'handleDragEnter',
       'handleDragLeave',
       'handleEventBind',
-      'handleBoxClick'
+      'handleBoxClick',
+      'handleListenerRemove'
     ].forEach((m) => {
       this[m] = this[m].bind(this);
     });
@@ -51,16 +54,16 @@ class Box extends React.Component {
     });
     return (
       <div className={cls} draggable ref={(box) => { this.box = box; }}>
-        <span className="opt-remove" onClick={this.handleRemove}>删除</span>
-        { border && <span className="opt-border" onClick={this.handleToggleBoder}>边框</span> }
+        <span className="opt-remove">删除</span>
+        { border && <span className="opt-border">边框</span> }
         { mode && <div className="pseudo-element" /> }
         {
           mode && (
             <div className="size-group">
-              { mode === 'horizontal' && <span className="opt-adapt" onClick={this.handleRemove}>撑开</span> }
-              <span className="opt-large" onClick={this.handleRemove}>大</span>
-              <span className="opt-middle" onClick={this.handleRemove}>中</span>
-              <span className="opt-small" onClick={this.handleRemove}>小</span>
+              { mode === 'horizontal' && <span className="opt-adapt">撑开</span> }
+              <span className="opt-large">大</span>
+              <span className="opt-middle">中</span>
+              <span className="opt-small">小</span>
             </div>
           )
         }
@@ -71,6 +74,7 @@ class Box extends React.Component {
 
   componentDidMount() {
     this.box.addEventListener('dragstart', this.handleDragStart);
+    this.box.addEventListener('dragend', this.handleDragEnd);
 
     const placeholder = document.createElement('div');
     placeholder.className = 'placeholder';
@@ -100,13 +104,21 @@ class Box extends React.Component {
     });
   }
 
+  /* 情空指针 */
+  handleDragEnd(e) {
+    console.log('dragend');
+    this.over = null;
+    this.dragDOM = null;
+  }
+
   handleDragOver(e) {
     const self = this;
     e.preventDefault();
   }
 
   handleDrop(e) {
-    const self = this;
+    console.log('drop');
+    if (!this.dragDOM) return false;
     const dropDOM = e.currentTarget;
     const newDOM = this.dragDOM.cloneNode(true);
     this.handleEventBind(newDOM);
@@ -119,18 +131,7 @@ class Box extends React.Component {
       }
     }
 
-    /* 移除事件、指针置空 */
-    this.containers && this.containers.forEach((item) => {
-      item.removeEventListener('dragover', this.handleDragOver);
-      item.removeEventListener('dragenter', this.handleDragEnter);
-      item.removeEventListener('drop', this.handleDrop);
-      item.removeEventListener('dragleave', this.handleDragLeave);
-    });
-
-    this.boxes && this.boxes.forEach((item) => {
-      item.removeEventListener('dragover', this.handleSlibingDragOver);
-    });
-    this.dragDOM = null;
+    this.handleListenerRemove();
   }
 
   handleDragEnter(e) {
@@ -165,6 +166,21 @@ class Box extends React.Component {
       parent.insertBefore(this.placeholder, slibingDOM);
     }
   }
+
+  handleListenerRemove() {
+    /* 移除事件、指针置空 */
+    this.containers && this.containers.forEach((item) => {
+      item.removeEventListener('dragover', this.handleDragOver);
+      item.removeEventListener('dragenter', this.handleDragEnter);
+      item.removeEventListener('drop', this.handleDrop);
+      item.removeEventListener('dragleave', this.handleDragLeave);
+    });
+
+    this.boxes && this.boxes.forEach((item) => {
+      item.removeEventListener('dragover', this.handleSlibingDragOver);
+    });
+    this.dragDOM = null;
+  }
   /* drag end */
 
   /* 为界面元素绑定 */
@@ -190,7 +206,7 @@ class Box extends React.Component {
         dom.parentNode.style.display = 'block';
       }
     }
-
+    dom.removeEventListener('click', this.handleBoxClick);
     dom.parentNode.removeChild(dom);
   }
 
@@ -204,7 +220,6 @@ class Box extends React.Component {
 
   handleSpaceResize(node, size) {
     const self = this;
-    // node.parentNode.style.display = 'block';
     let str = '';
     switch (size) {
       case 'small':
@@ -216,7 +231,7 @@ class Box extends React.Component {
       case 'large':
         str = '24px';
         break;
-      default: str = 'none'; break;
+      default: str = size || 'none'; break;
 
     }
 
@@ -232,23 +247,30 @@ class Box extends React.Component {
     e.stopPropagation();
     if (e.target.classList.contains('opt-remove')) {
       this.handleRemove(e);
+      return false;
     }
     if (e.target.classList.contains('opt-border')) {
       this.handleToggleBoder(e);
+      return false;
     }
-
     if (e.target.classList.contains('opt-small')) {
       this.handleSpaceResize(e.currentTarget, 'small');
+      return false;
     }
     if (e.target.classList.contains('opt-large')) {
       this.handleSpaceResize(e.currentTarget, 'large');
+      return false;
     }
     if (e.target.classList.contains('opt-middle')) {
       this.handleSpaceResize(e.currentTarget, 'middle');
+      return false;
     }
     if (e.target.classList.contains('opt-adapt')) {
       this.handleSpaceResize(e.currentTarget, 'adapt');
+      return false;
     }
+
+    Action.updatePage({ selectDOM: e.currentTarget });
   }
 }
 

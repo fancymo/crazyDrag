@@ -21,9 +21,9 @@ function loopChild(node) {
       }
     }
     if (item.classList.contains('demo')) {
-      item.classList.remove('edit');
       hasChild = true;
-      elem = item.cloneNode(false);
+      console.log(item.cloneNode(false).classList.remove('edit'));
+      elem = item.cloneNode(false).classList.remove('edit');
     }
     if (item.classList.contains('fan-row')) {
       hasChild = true;
@@ -65,7 +65,6 @@ export default class Container extends React.Component {
     const cls = ClassNames('demo', {
       edit: this.state.page.editable
     });
-
     return (
       <div id="container" className="layout-container">
         <div className="action-bar">
@@ -102,8 +101,10 @@ export default class Container extends React.Component {
   handleDownload() {
     const self = this;
     const demo = document.getElementsByClassName('demo')[0];
+    const elem = demo.cloneNode(false);
+    elem.classList.remove('edit');
     const domObj = {
-      elem: demo.cloneNode(false),
+      elem,
       children: loopChild(demo)
     };
     const codeModal = {
