@@ -20,7 +20,7 @@ export default class Configure extends React.Component {
   }
 
   render() {
-    const { isSelect, name, placeholder, isInput } = this.state;
+    const { isSelect, name, placeholder, groupName, inputType } = this.state;
     return (
       <div id="configure" className="layout-configure">
         <ul className="accordion-group">
@@ -33,9 +33,16 @@ export default class Configure extends React.Component {
                   <Input value={name || ''} onChange={e => this.handleInputChange(e, 'name')} onBlur={e => this.handleInputBlur(e, 'name')} placeholder="data name" />
                 </div>
                 {
-                  isInput && (
+                  inputType === 'text' && (
                     <div className="withLabel" data-label="placeholder:">
                       <Input value={placeholder || ''} onChange={e => this.handleInputChange(e, 'placeholder')} onBlur={e => this.handleInputBlur(e, 'placeholder')} placeholder="placeholder" />
+                    </div>
+                  )
+                }
+                {
+                  inputType === 'radio' && (
+                    <div className="withLabel" data-label="groupName:">
+                      <Input value={groupName || ''} onChange={e => this.handleInputChange(e, 'groupName')} onBlur={e => this.handleInputBlur(e, 'groupName')} placeholder="radio group name" />
                     </div>
                   )
                 }
@@ -56,13 +63,20 @@ export default class Configure extends React.Component {
 
   handleStateChange() {
     const selectDOM = Store.getState().page.selectDOM;
+    console.log(selectDOM);
+    let child;
     if (!selectDOM) return false;
-    const child = selectDOM.querySelector('input') || selectDOM.querySelector('.view').firstChild;
+    if (selectDOM.className.indexOf('fan-col') > -1) {
+      child = selectDOM;
+    } else {
+      child = selectDOM.querySelector('.view input') || selectDOM.querySelector('.view').firstChild;
+    }
     this.setState({
       isSelect: !!selectDOM,
       name: child.getAttribute('data-name'),
       placeholder: child.type && child.getAttribute('placeholder'),
-      isInput: child.type === 'text',
+      groupName: child.type && child.getAttribute('name'),
+      inputType: child.type,
     });
   }
 
@@ -75,8 +89,13 @@ export default class Configure extends React.Component {
   handleInputBlur(e, name) {
     const self = this;
     const selectDOM = Store.getState().page.selectDOM;
+    let child;
     if (!selectDOM) return false;
-    const child = selectDOM.querySelector('input') || selectDOM.querySelector('.view').firstChild;
+    if (selectDOM.className.indexOf('fan-col') > -1) {
+      child = selectDOM;
+    } else {
+      child = selectDOM.querySelector('.view input') || selectDOM.querySelector('.view').firstChild;
+    }
     const value = e.target.value;
     switch (name) {
       case 'name':
@@ -85,6 +104,9 @@ export default class Configure extends React.Component {
         break;
       case 'placeholder':
         child.setAttribute('placeholder', value);
+        break;
+      case 'groupName':
+        child.setAttribute('name', value);
         break;
       default: break;
     }

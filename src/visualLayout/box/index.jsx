@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Dropdown, Radio, Button } from 'antd';
+import throttle from '../../config/modules/throttle';
 import Action from '../action';
 
 import './index.less';
@@ -33,9 +34,8 @@ class Box extends React.Component {
       'handleDragEnd',
       'handleDragOver',
       'handleDrop',
-      'handleSlibingDragOver',
+      'handleSlibingDragEnter',
       'handleDragEnter',
-      'handleDragLeave',
       'handleEventBind',
       'handleBoxClick',
       'handleListenerRemove'
@@ -79,15 +79,17 @@ class Box extends React.Component {
     const placeholder = document.createElement('div');
     placeholder.className = 'placeholder';
     this.placeholder = placeholder;
-
-    this.boxes = document.querySelectorAll('#container .box');
   }
 
   /* drag start */
   handleDragStart(e) {
+    e.stopPropagation();
     this.dragDOM = e.target;
-    e.dataTransfer.effectAllowed = 'copy';
-
+    if (this.dragDOM.classList.contains('inline')) {
+      this.placeholder.classList.add('inline');
+    } else {
+      this.placeholder.classList.remove('inline');
+    }
     this.placeholder.style.height = `${this.dragDOM.offsetHeight}px`;
     this.placeholder.style.width = `${this.dragDOM.offsetWidth}px`;
     this.containers = document.querySelectorAll('#container .demo, .layout-container div[class^=fan-col]');
@@ -95,20 +97,23 @@ class Box extends React.Component {
     this.containers && this.containers.forEach((item) => {
       item.addEventListener('dragover', this.handleDragOver);
       item.addEventListener('drop', this.handleDrop);
-      item.addEventListener('dragenter', this.handleDragEnter);
-      item.addEventListener('dragleave', this.handleDragLeave);
+      item.addEventListener('dragenter', throttle(this.handleDragEnter, 300));
     });
 
+    this.boxes = document.querySelectorAll('#container .box');
     this.boxes && this.boxes.forEach((item) => {
-      item.addEventListener('dragover', this.handleSlibingDragOver);
+      // item.addEventListener('dragenter', throttle(this.handleSlibingDragEnter, 300));
     });
   }
 
   /* 情空指针 */
   handleDragEnd(e) {
-    console.log('dragend');
     this.over = null;
     this.dragDOM = null;
+    const hasPlaceholder = document.querySelector('#container').contains(this.placeholder);
+    if (hasPlaceholder) {
+      this.placeholder.parentNode.removeChild(this.placeholder);
+    }
   }
 
   handleDragOver(e) {
@@ -117,12 +122,11 @@ class Box extends React.Component {
   }
 
   handleDrop(e) {
-    console.log('drop');
     if (!this.dragDOM) return false;
     const dropDOM = e.currentTarget;
     const newDOM = this.dragDOM.cloneNode(true);
     this.handleEventBind(newDOM);
-    this.placeholder && dropDOM.replaceChild(newDOM, this.placeholder);
+    this.placeholder.parentNode && dropDOM.replaceChild(newDOM, this.placeholder);
 
     /* 处理 space element */
     if (newDOM.classList.contains('space')) {
@@ -139,29 +143,29 @@ class Box extends React.Component {
     e.stopPropagation();
     if (!this.dragDOM) return false;
     if (e.target === this.placeholder) return false;
-    this.over = e.currentTarget;
+    if (!e.target.classList.contains('demo') && e.target.className.indexOf('fan-col') < 0) return false;
+    console.log('enter', e.target);
+    this.over = e.target;
+
     this.over.appendChild(this.placeholder);
   }
 
-  handleDragLeave(e) {
-    const self = this;
-    if (e.target === this.over && this.placeholder.parentNode) {
-      this.placeholder.parentNode.removeChild(this.placeholder);
-    }
-  }
-
   /* 兄弟元素 */
-  handleSlibingDragOver(e) {
+  handleSlibingDragEnter(e) {
+    console.log('box enter', e.target);
     const self = this;
-    e.preventDefault();  // 允许响应 drop event
     e.stopPropagation();
+    if (!e.currentTarget.classList.contains('box')) return false;
     const slibingDOM = e.currentTarget;
-    const parent = this.over;
+    const parent = slibingDOM.parentNode;
+
     const relY = e.clientY;
     const height = (slibingDOM.getBoundingClientRect().bottom + slibingDOM.getBoundingClientRect().top) * 0.5;
     if (relY > height) {
+      console.log('1');
       parent.insertBefore(this.placeholder, slibingDOM.nextElementSibling);
     } else if (relY < height) {
+      console.log('2');
       this.nodePlacement = 'before';
       parent.insertBefore(this.placeholder, slibingDOM);
     }
@@ -169,16 +173,15 @@ class Box extends React.Component {
 
   handleListenerRemove() {
     /* 移除事件、指针置空 */
-    this.containers && this.containers.forEach((item) => {
-      item.removeEventListener('dragover', this.handleDragOver);
-      item.removeEventListener('dragenter', this.handleDragEnter);
-      item.removeEventListener('drop', this.handleDrop);
-      item.removeEventListener('dragleave', this.handleDragLeave);
-    });
+    // this.containers && this.containers.forEach((item) => {
+    //   item.removeEventListener('dragover', this.handleDragOver);
+    //   item.removeEventListener('dragenter', this.handleDragEnter);
+    //   item.removeEventListener('drop', this.handleDrop);
+    // });
 
-    this.boxes && this.boxes.forEach((item) => {
-      item.removeEventListener('dragover', this.handleSlibingDragOver);
-    });
+    // this.boxes && this.boxes.forEach((item) => {
+    //   item.removeEventListener('dragenter', this.handleSlibingDragEnter);
+    // });
     this.dragDOM = null;
   }
   /* drag end */
@@ -186,6 +189,7 @@ class Box extends React.Component {
   /* 为界面元素绑定 */
   handleEventBind(node) {
     const self = this;
+    node.addEventListener('dragstart', this.handleDragStart);
     node.addEventListener('click', this.handleBoxClick);
   }
 
@@ -270,7 +274,12 @@ class Box extends React.Component {
       return false;
     }
 
-    Action.updatePage({ selectDOM: e.currentTarget });
+    let selectDOM = e.currentTarget;
+    if (e.target.className.indexOf('fan-col') > -1) {
+      selectDOM = e.target;
+    }
+
+    Action.updatePage({ selectDOM });
   }
 }
 
