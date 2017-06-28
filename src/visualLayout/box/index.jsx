@@ -3,10 +3,21 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Dropdown, Radio, Button } from 'antd';
+// import { debounce, throttle } from 'lodash';
 import debounce from '../../config/modules/debounce';
 import Action from '../action';
 
 import './index.less';
+
+const findParentNode = (dom, className) => {
+  if (!dom) return null;
+  const parentDOM = dom.parentNode;
+  if (!parentDOM) return null;
+  if (!parentDOM.classList.contains(className)) {
+    return findParentNode(parentDOM, className);
+  }
+  return parentDOM;
+};
 
 const propTypes = {
   preview: PropTypes.oneOfType([
@@ -94,15 +105,17 @@ class Box extends React.Component {
     this.placeholder.style.width = `${this.dragDOM.offsetWidth}px`;
     this.containers = document.querySelectorAll('#container .demo, .layout-container div[class^=fan-col]');
 
+    this.dragenterDebounce = debounce(this.handleDragEnter, 300);  // 用来移除
     this.containers && this.containers.forEach((item) => {
       item.addEventListener('dragover', this.handleDragOver);
       item.addEventListener('drop', this.handleDrop);
-      item.addEventListener('dragenter', debounce(this.handleDragEnter, 300));
+      item.addEventListener('dragenter', this.dragenterDebounce);
     });
 
     this.boxes = document.querySelectorAll('#container .box');
+    // this.slibingdragenterDebounce = debounce(this.handleSlibingDragEnter, 600);
     this.boxes && this.boxes.forEach((item) => {
-      // item.addEventListener('dragenter', debounce(this.handleSlibingDragEnter, 300));
+      item.addEventListener('dragenter', this.dragenterDebounce);
     });
   }
 
@@ -146,26 +159,26 @@ class Box extends React.Component {
     if (!e.target.classList.contains('demo') && e.target.className.indexOf('fan-col') < 0) return false;
     console.log('enter', e.target);
     this.over = e.target;
-
     this.over.appendChild(this.placeholder);
   }
 
   /* 兄弟元素 */
   handleSlibingDragEnter(e) {
-    console.log('box enter', e.target);
+    // console.log('box enter', e.target);
     const self = this;
     e.stopPropagation();
-    if (!e.currentTarget.classList.contains('box')) return false;
-    const slibingDOM = e.currentTarget;
+    const slibingDOM = findParentNode(e.target, 'box');
+    if (!slibingDOM) return false;
+    console.log('box enter', e.target);
     const parent = slibingDOM.parentNode;
 
     const relY = e.clientY;
     const height = (slibingDOM.getBoundingClientRect().bottom + slibingDOM.getBoundingClientRect().top) * 0.5;
     if (relY > height) {
-      console.log('1');
+      // console.log('1');
       parent.insertBefore(this.placeholder, slibingDOM.nextElementSibling);
     } else if (relY < height) {
-      console.log('2');
+      // console.log('2');
       this.nodePlacement = 'before';
       parent.insertBefore(this.placeholder, slibingDOM);
     }
@@ -173,15 +186,15 @@ class Box extends React.Component {
 
   handleListenerRemove() {
     /* 移除事件、指针置空 */
-    // this.containers && this.containers.forEach((item) => {
-    //   item.removeEventListener('dragover', this.handleDragOver);
-    //   item.removeEventListener('dragenter', this.handleDragEnter);
-    //   item.removeEventListener('drop', this.handleDrop);
-    // });
+    this.containers && this.containers.forEach((item) => {
+      item.removeEventListener('dragover', this.handleDragOver);
+      item.removeEventListener('dragenter', this.dragenterDebounce);
+      item.removeEventListener('drop', this.handleDrop);
+    });
 
-    // this.boxes && this.boxes.forEach((item) => {
-    //   item.removeEventListener('dragenter', this.handleSlibingDragEnter);
-    // });
+    this.boxes && this.boxes.forEach((item) => {
+      item.removeEventListener('dragenter', this.dragenterDebounce);
+    });
     this.dragDOM = null;
   }
   /* drag end */

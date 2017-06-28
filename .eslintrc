@@ -4,7 +4,7 @@
     'browser': true,
     'node': true,
     'es6': true,
-    'jquery': true
+    'jquery': true,
   },
   'parser': 'babel-eslint',
   'parserOptions': {
@@ -16,7 +16,7 @@
   },
   'plugins': [
     'react',
-    'babel'
+    'babel',
   ],
   'rules': {
     'no-console': 0,
