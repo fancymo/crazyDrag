@@ -3,7 +3,7 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Dropdown, Radio, Button } from 'antd';
-import throttle from '../../config/modules/throttle';
+import debounce from '../../config/modules/debounce';
 import Action from '../action';
 
 import './index.less';
@@ -97,12 +97,12 @@ class Box extends React.Component {
     this.containers && this.containers.forEach((item) => {
       item.addEventListener('dragover', this.handleDragOver);
       item.addEventListener('drop', this.handleDrop);
-      item.addEventListener('dragenter', throttle(this.handleDragEnter, 300));
+      item.addEventListener('dragenter', debounce(this.handleDragEnter, 300));
     });
 
     this.boxes = document.querySelectorAll('#container .box');
     this.boxes && this.boxes.forEach((item) => {
-      // item.addEventListener('dragenter', throttle(this.handleSlibingDragEnter, 300));
+      // item.addEventListener('dragenter', debounce(this.handleSlibingDragEnter, 300));
     });
   }
 
