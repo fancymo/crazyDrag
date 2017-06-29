@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Collapse } from 'antd';
 import Box from '../box';
 import Configure from '../configure';
 import { Input, Label, Row, CheckBox, Radio } from '../component';
@@ -16,26 +17,24 @@ export default class Sider extends React.Component {
   render() {
     return (
       <div id="sider" className="layout-sider">
-        <ul className="accordion-group">
-          <li>布局</li>
-          <li>
-            <BoxRow />
+        <Collapse defaultActiveKey={['1']}>
+          <Collapse.Panel className="accordion-group" header="布局" key="1">
+            <BoxRow defaultValue="6,6" />
             <BoxRow defaultValue="4,8" />
             <BoxRow defaultValue="3,9" />
-          </li>
-        </ul>
-        <ul className="accordion-group">
-          <li>组件</li>
-          <li>
+          </Collapse.Panel>
+          <Collapse.Panel className="accordion-group" header="组件" key="2">
             <Box inline preview="Label" ><Label /></Box>
             <Box inline preview="输入框" ><Input /></Box>
             <Box inline preview="复选框" ><CheckBox /></Box>
             <Box inline preview="单选框" ><Radio /></Box>
             <Box inline mode="horizontal" preview="水平间距" />
             <Box mode="vertical" preview="垂直间距" />
-          </li>
-        </ul>
-        <Configure />
+          </Collapse.Panel>
+          <Collapse.Panel className="accordion-group" header="配置信息" key="3">
+            <Configure />
+          </Collapse.Panel>
+        </Collapse>
       </div>);
   }
 

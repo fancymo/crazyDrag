@@ -11,7 +11,7 @@ const debounce = function (fn, delay) {
   // 返回一个函数，这个函数会在一个事件区间结束后 delay 毫秒时执行 fn 函数
   return function (...args) {
     const context = this;
-
+    console.log('clear', timer);
     // 每次返回的函数被调用，清除定时器，保证不执行 fn
     clearTimeout(timer);
 
@@ -20,6 +20,7 @@ const debounce = function (fn, delay) {
     timer = setTimeout(() => {
       fn.apply(context, args);
     }, delay);
+    console.log('new', timer);
   };
 };
 export default debounce;

@@ -3,8 +3,7 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 import { Dropdown, Radio, Button } from 'antd';
-// import { debounce, throttle } from 'lodash';
-import debounce from '../../config/modules/debounce';
+import { debounce, throttle } from 'lodash';
 import Action from '../action';
 
 import './index.less';
@@ -45,11 +44,13 @@ class Box extends React.Component {
       'handleDragEnd',
       'handleDragOver',
       'handleDrop',
-      'handleSlibingDragEnter',
       'handleDragEnter',
       'handleEventBind',
       'handleBoxClick',
-      'handleListenerRemove'
+      'handleListenerRemove',
+      'handleBoxMousedown',
+      // 'handleBoxMouseup',
+      'handleBoxMousedownBind'
     ].forEach((m) => {
       this[m] = this[m].bind(this);
     });
@@ -66,6 +67,8 @@ class Box extends React.Component {
     return (
       <div className={cls} draggable ref={(box) => { this.box = box; }}>
         <span className="opt-remove">删除</span>
+        <span className="opt-move">move</span>
+        <span className="opt-copy">copy</span>
         { border && <span className="opt-border">边框</span> }
         { mode && <div className="pseudo-element" /> }
         {
@@ -84,8 +87,7 @@ class Box extends React.Component {
   }
 
   componentDidMount() {
-    this.box.addEventListener('dragstart', this.handleDragStart);
-    this.box.addEventListener('dragend', this.handleDragEnd);
+    this.box.addEventListener('mousedown', this.handleBoxMousedown);
 
     const placeholder = document.createElement('div');
     placeholder.className = 'placeholder';
@@ -96,13 +98,14 @@ class Box extends React.Component {
   handleDragStart(e) {
     e.stopPropagation();
     this.dragDOM = e.target;
+    console.log('start', this.dragDOM.dataset.mode);
     if (this.dragDOM.classList.contains('inline')) {
       this.placeholder.classList.add('inline');
+      this.placeholder.style.width = `${this.dragDOM.offsetWidth}px`;
     } else {
       this.placeholder.classList.remove('inline');
     }
     this.placeholder.style.height = `${this.dragDOM.offsetHeight}px`;
-    this.placeholder.style.width = `${this.dragDOM.offsetWidth}px`;
     this.containers = document.querySelectorAll('#container .demo, .layout-container div[class^=fan-col]');
 
     this.dragenterDebounce = debounce(this.handleDragEnter, 300);  // 用来移除
@@ -113,20 +116,23 @@ class Box extends React.Component {
     });
 
     this.boxes = document.querySelectorAll('#container .box');
-    // this.slibingdragenterDebounce = debounce(this.handleSlibingDragEnter, 600);
     this.boxes && this.boxes.forEach((item) => {
       item.addEventListener('dragenter', this.dragenterDebounce);
     });
+    this.dragDOM.addEventListener('dragend', this.handleDragEnd);
   }
 
   /* 情空指针 */
   handleDragEnd(e) {
-    this.over = null;
-    this.dragDOM = null;
+    const a = document.querySelector('#container');
     const hasPlaceholder = document.querySelector('#container').contains(this.placeholder);
     if (hasPlaceholder) {
       this.placeholder.parentNode.removeChild(this.placeholder);
     }
+    this.handleListenerRemove(this.dragDOM, this.over);
+    this.over = null;
+    this.dragDOM = null;
+    console.log('end');
   }
 
   handleDragOver(e) {
@@ -135,9 +141,17 @@ class Box extends React.Component {
   }
 
   handleDrop(e) {
+    console.log('drop');
+    e.stopPropagation();
     if (!this.dragDOM) return false;
     const dropDOM = e.currentTarget;
-    const newDOM = this.dragDOM.cloneNode(true);
+    let newDOM = this.dragDOM;
+    const optMode = this.dragDOM.dataset.mode;
+    this.dragDOM.removeAttribute('data-mode');
+    if (optMode !== 'move') {
+      newDOM = this.dragDOM.cloneNode(true);
+    }
+
     this.handleEventBind(newDOM);
     this.placeholder.parentNode && dropDOM.replaceChild(newDOM, this.placeholder);
 
@@ -147,44 +161,41 @@ class Box extends React.Component {
         dropDOM.style.display = 'flex';
       }
     }
-
-    this.handleListenerRemove();
   }
 
   handleDragEnter(e) {
-    const self = this;
     e.stopPropagation();
     if (!this.dragDOM) return false;
     if (e.target === this.placeholder) return false;
-    if (!e.target.classList.contains('demo') && e.target.className.indexOf('fan-col') < 0) return false;
-    console.log('enter', e.target);
-    this.over = e.target;
-    this.over.appendChild(this.placeholder);
-  }
 
-  /* 兄弟元素 */
-  handleSlibingDragEnter(e) {
-    // console.log('box enter', e.target);
-    const self = this;
-    e.stopPropagation();
-    const slibingDOM = findParentNode(e.target, 'box');
-    if (!slibingDOM) return false;
-    console.log('box enter', e.target);
-    const parent = slibingDOM.parentNode;
+    // 触发容器 dragenter 事件
+    if (e.target.classList.contains('demo') || e.target.className.indexOf('fan-col') > -1) {
+      // 拖拽的元素不支持放入自身子节点
+      if (this.dragDOM.contains(e.target)) return false;
+      this.over = e.target;
+      this.over.appendChild(this.placeholder);
 
-    const relY = e.clientY;
-    const height = (slibingDOM.getBoundingClientRect().bottom + slibingDOM.getBoundingClientRect().top) * 0.5;
-    if (relY > height) {
-      // console.log('1');
-      parent.insertBefore(this.placeholder, slibingDOM.nextElementSibling);
-    } else if (relY < height) {
-      // console.log('2');
-      this.nodePlacement = 'before';
-      parent.insertBefore(this.placeholder, slibingDOM);
+      // 触发兄弟节点的 dragenter 事件
+    } else {
+      const slibingDOM = findParentNode(e.target, 'box');
+      if (!slibingDOM) return false;
+      const parent = slibingDOM.parentNode;
+
+      const relY = e.clientY;
+      const height = (slibingDOM.getBoundingClientRect().bottom + slibingDOM.getBoundingClientRect().top + 25) * 0.5;
+
+      if (relY > height) {
+        parent.insertBefore(this.placeholder, slibingDOM.nextElementSibling);
+      } else if (relY < height) {
+        parent.insertBefore(this.placeholder, slibingDOM);
+      }
     }
   }
 
-  handleListenerRemove() {
+  handleListenerRemove(dragDOM, over) {
+    console.log('remove');
+    dragDOM.removeEventListener('dragstart', this.handleDragStart);
+    dragDOM.removeEventListener('dragend', this.handleDragEnd);
     /* 移除事件、指针置空 */
     this.containers && this.containers.forEach((item) => {
       item.removeEventListener('dragover', this.handleDragOver);
@@ -202,9 +213,33 @@ class Box extends React.Component {
   /* 为界面元素绑定 */
   handleEventBind(node) {
     const self = this;
-    node.addEventListener('dragstart', this.handleDragStart);
     node.addEventListener('click', this.handleBoxClick);
+    node.addEventListener('mousedown', this.handleBoxMousedown);
+    // node.addEventListener('mouseup', this.handleBoxMouseup);
   }
+
+  handleBoxMousedownBind(node, mode) {
+    const self = this;
+    node.dataset.mode = mode;
+    node.addEventListener('dragstart', this.handleDragStart);
+  }
+
+  // 鼠标按下事件
+  handleBoxMousedown(e) {
+    e.stopPropagation();
+    if (e.target.classList.contains('opt-move')) {
+      this.handleBoxMousedownBind(e.target.parentNode, 'move');
+    }
+    if (e.target.classList.contains('opt-copy')) {
+      this.handleBoxMousedownBind(e.target.parentNode, 'copy');
+    }
+  }
+
+  // 鼠标松开事件
+  // handleBoxMouseup(e) {
+  //   const self = this;
+  //   console.log('up', e.target);
+  // }
 
   /* 移除当前元素 */
   handleRemove(e) {
@@ -248,7 +283,7 @@ class Box extends React.Component {
       case 'large':
         str = '24px';
         break;
-      default: str = size || 'none'; break;
+      default: str = 'none' || 'none'; break;
 
     }
 

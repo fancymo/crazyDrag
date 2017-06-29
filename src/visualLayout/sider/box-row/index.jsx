@@ -1,5 +1,7 @@
 import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Input as AntInput } from 'antd';
+
 import Box from '../../box';
 import { Input, Label, Row } from '../../component';
 
@@ -34,7 +36,7 @@ class BoxRow extends React.PureComponent {
       colRets.push(<Row.Col col={parseInt(item, 10)} key={index} />);
     });
     return (
-      <Box preview={<input defaultValue={defaultValue} onBlur={this.handleBlur} />} border >
+      <Box preview={<AntInput defaultValue={defaultValue} onBlur={this.handleBlur} />} border >
         <Row>{colRets}</Row>
       </Box>);
   }

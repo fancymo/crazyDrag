@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input } from 'antd';
+import { Input, TreeSelect } from 'antd';
 import Store from '../store';
 import Action from '../action';
 
@@ -23,34 +23,31 @@ export default class Configure extends React.Component {
     const { isSelect, name, placeholder, groupName, inputType } = this.state;
     return (
       <div id="configure" className="layout-configure">
-        <ul className="accordion-group">
-          <li>配置栏{ !isSelect && '(未选择组件～)' }</li>
-
-          {
-            isSelect && (
-              <li>
-                <div className="withLabel" data-label="name:">
-                  <Input value={name || ''} onChange={e => this.handleInputChange(e, 'name')} onBlur={e => this.handleInputBlur(e, 'name')} placeholder="data name" />
-                </div>
-                {
-                  inputType === 'text' && (
-                    <div className="withLabel" data-label="placeholder:">
-                      <Input value={placeholder || ''} onChange={e => this.handleInputChange(e, 'placeholder')} onBlur={e => this.handleInputBlur(e, 'placeholder')} placeholder="placeholder" />
-                    </div>
-                  )
-                }
-                {
-                  inputType === 'radio' && (
-                    <div className="withLabel" data-label="groupName:">
-                      <Input value={groupName || ''} onChange={e => this.handleInputChange(e, 'groupName')} onBlur={e => this.handleInputBlur(e, 'groupName')} placeholder="radio group name" />
-                    </div>
-                  )
-                }
-              </li>
-            )
-          }
-        </ul>
-      </div>);
+        { !isSelect && '(未选择组件～)' }
+        {
+          isSelect && (
+            <div>
+              <div className="withLabel" data-label="name:">
+                <Input value={name || ''} onChange={e => this.handleInputChange(e, 'name')} onBlur={e => this.handleInputBlur(e, 'name')} placeholder="data name" />
+              </div>
+              {
+                inputType === 'text' && (
+                  <div className="withLabel" data-label="placeholder:">
+                    <Input value={placeholder || ''} onChange={e => this.handleInputChange(e, 'placeholder')} onBlur={e => this.handleInputBlur(e, 'placeholder')} placeholder="placeholder" />
+                  </div>
+                )
+              }
+              {
+                inputType === 'radio' && (
+                  <div className="withLabel" data-label="groupName:">
+                    <Input value={groupName || ''} onChange={e => this.handleInputChange(e, 'groupName')} onBlur={e => this.handleInputBlur(e, 'groupName')} placeholder="radio group name" />
+                  </div>
+                )
+              }
+            </div>
+          )
+        }
+    </div>);
   }
 
   componentDidMount() {
@@ -63,7 +60,6 @@ export default class Configure extends React.Component {
 
   handleStateChange() {
     const selectDOM = Store.getState().page.selectDOM;
-    console.log(selectDOM);
     let child;
     if (!selectDOM) return false;
     if (selectDOM.className.indexOf('fan-col') > -1) {

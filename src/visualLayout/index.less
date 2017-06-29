@@ -16,6 +16,22 @@ li {
   list-style: none;
 }
 
+[class^=opt-] {
+  display: inline-block;
+  z-index: 500;
+  font-size: 12px;
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
 .layout {
   display: flex;
   height: 100%;
@@ -28,8 +44,6 @@ li {
   height: 100%;
 
   .accordion-group {
-    padding-left: 15px;
-    padding-right: 15px;
 
     li {
 
@@ -42,14 +56,37 @@ li {
     }
 
     .box {
-      // line-height: 25px;
       width: 170px;
       flex-shrink: 0;
-      // height: 25px;
-      [class^=opt-],
-      .opt-border,
-      .opt-remove {
+      position: relative;
+      margin: 8px 0;
+
+      [class^=opt-] {
         display: none;
+      }
+      .opt-copy {
+        position: relative;
+        display: inline-block;
+        background-color: #999;
+        color: #fff;
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        margin-top: -12px;
+
+        /* copy 元素显示为拖拽 */
+        &::after {
+          content: '拖拽';
+          width: 100%;
+          height: 100%;
+          display: inline-block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          text-align: center;
+          line-height: 22px;
+          background: #999;
+        }
       }
       .pseudo-element {
         display: none;
@@ -64,6 +101,7 @@ li {
 .layout-container {
   flex: 1;
   padding: 15px;
+  background: #eee;
 
   .demo {
     position: relative;
@@ -75,6 +113,7 @@ li {
     border-radius: 4px;
     position: relative;
     word-wrap: break-word;
+    background-color: #fff;
 
     &::after {
       background-color: #F5F5F5;
@@ -92,20 +131,9 @@ li {
 
     .box {
 
-      [class^=opt-],
-      .opt-border,
-      .opt-remove {
+      .preview,
+      [class^=opt-] {
         display: none;
-      }
-
-      .preview {
-        display: none;
-      }
-      .pseudo-element {
-
-      }
-
-      .view {
       }
     }
 
@@ -114,6 +142,7 @@ li {
 
       &.inline {
         display: inline-block;
+        vertical-align: middle;
       }
     }
   }
@@ -188,30 +217,19 @@ li {
       padding-top: 25px;
     }
 
-    [class^=opt-] {
-      display: inline-block;
-      z-index: 500;
-      font-size: 12px;
-      color: #333;
-      background-color: #f5f5f5;
-      border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-      border-radius: 4px;
-      padding: 2px 8px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      cursor: pointer;
-      border: 1px solid transparent;
-    }
+
 
     .size-group,
     & > [class^=opt-] {
       opacity: 0;
       position: absolute;
     }
-    .opt-remove {
-      opacity: .5;
-    }
+
+    // .opt-copy,
+    // .opt-move,
+    // .opt-remove {
+    //   opacity: .5;
+    // }
 
     .opt-remove {
       background-color: #f4511e;
@@ -219,10 +237,23 @@ li {
       right: 0;
     }
 
+    .opt-move {
+      background-color: #999;
+      color: #fff;
+      right: 54px;
+    }
+
+    .opt-copy {
+      background-color: #999;
+      color: #fff;
+      right: 108px;
+    }
+
     [class^=opt-] {
+      display: inline-block;
     }
     .size-group {
-      right: 112px;
+      right: 160px;
       white-space: nowrap;
 
       & > [class^=opt-] {
@@ -231,7 +262,7 @@ li {
     }
     .opt-border {
       position: absolute;
-      right: 50px;
+      right: 160px;
     }
 
     &:hover {
@@ -239,6 +270,8 @@ li {
 
       & > .size-group,
       & > .opt-border,
+      & > .opt-copy,
+      & > .opt-move,
       & > .opt-remove {
         opacity: 1;
       }
