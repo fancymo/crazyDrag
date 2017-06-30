@@ -72,7 +72,7 @@ export default class Container extends React.Component {
           <Button type="primary" onClick={this.handlePreview}>预览</Button>
           <Button type="primary" onClick={this.handleDownload}>下载</Button>
         </div>
-        <div className={cls} />
+        <form><div className={cls} /></form>
         <CodeModal {...this.state} onOk={this.handleDownloadModalOK} onCancel={this.handleDownloadModalCancel} />
       </div>);
   }

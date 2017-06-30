@@ -25,7 +25,7 @@ class CheckBox extends React.Component {
     return (
       <span className={CHECKBOX_CLASS}>
         <input type="checkbox" />
-        <Label />
+        <Label text="on" />
       </span>);
   }
 

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
-
+  editable: PropTypes.bool,
+  text: PropTypes.string
 };
 
 const defaultProps = {
-
+  editable: false,
+  text: 'label'
 };
 
 class Label extends React.Component {
@@ -16,13 +19,18 @@ class Label extends React.Component {
   }
 
   render() {
+    const { editable, text } = this.props;
+    console.log(text);
     return (
-      <label htmlFor="label" contentEditable>label</label>
+      <label htmlFor="label" contentEditable={editable}>{text}</label>
     );
   }
 
   componentDidMount() {}
 
 }
+
+Label.propTypes = propTypes;
+Label.defaultProps = defaultProps;
 
 export default Label;

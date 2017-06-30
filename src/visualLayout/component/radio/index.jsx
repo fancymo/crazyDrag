@@ -25,7 +25,7 @@ class Radio extends React.Component {
     return (
       <span className={RADIO_CLASS}>
         <input type="radio" />
-        <Label />
+        <Label text="on" />
       </span>);
   }
 

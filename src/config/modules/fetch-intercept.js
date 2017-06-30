@@ -1,8 +1,7 @@
 import { hashHistory } from 'react-router';
 import { notification } from 'antd';
-import URLS from 'urls';
+import URLS from './urls.development.js';
 import Configs from './config.js';
-import AppStore from '../../pages/layout/store';
 
 // const DEFAULT_CONTENT_TYPE = 'application/json';
 const DEFAULT_CONTENT_TYPE = 'application/x-www-form-urlencoded';
@@ -39,13 +38,12 @@ function badToken(rsp) {
 export default (next, store) => {
   return (input, init) => {
     init = init || {};
-    const headers = AppStore.getState().header;
 
     /* test API */
     if (input.indexOf('test:') > -1) {
       input = `${URLS.test}${input.slice(5)}`;
     } else {
-      input = `${URLS.app}${headers.tenant}/${Configs.service}/${input}`;
+      input = `${URLS.app}${input}`;
     }
 
     // 插入Query Param
@@ -68,14 +66,9 @@ export default (next, store) => {
     }
 
     // 插入token
-    const token = store.getState().header.token;
-    init.headers.tenant = init.headers.tenant || headers.tenant;
-    init.headers.workstation = init.headers.workstation || headers.workstation;
-    if (token) {
-      if (!init.headers.token) {
-        init.headers.token = token;
-      }
-    }
+    init.headers.tenant = init.headers.tenant || 'mm';
+    init.headers.workstation = init.headers.workstation || 'mm';
+
     return next(input, init).then((rsp) => {
       if (rsp.ok) {
         const contentType = rsp.headers.get('Content-Type');

@@ -49,7 +49,6 @@ class Box extends React.Component {
       'handleBoxClick',
       'handleListenerRemove',
       'handleBoxMousedown',
-      // 'handleBoxMouseup',
       'handleBoxMousedownBind'
     ].forEach((m) => {
       this[m] = this[m].bind(this);
@@ -98,7 +97,6 @@ class Box extends React.Component {
   handleDragStart(e) {
     e.stopPropagation();
     this.dragDOM = e.target;
-    console.log('start', this.dragDOM.dataset.mode);
     if (this.dragDOM.classList.contains('inline')) {
       this.placeholder.classList.add('inline');
       this.placeholder.style.width = `${this.dragDOM.offsetWidth}px`;
@@ -132,7 +130,6 @@ class Box extends React.Component {
     this.handleListenerRemove(this.dragDOM, this.over);
     this.over = null;
     this.dragDOM = null;
-    console.log('end');
   }
 
   handleDragOver(e) {
@@ -141,7 +138,6 @@ class Box extends React.Component {
   }
 
   handleDrop(e) {
-    console.log('drop');
     e.stopPropagation();
     if (!this.dragDOM) return false;
     const dropDOM = e.currentTarget;
@@ -193,7 +189,6 @@ class Box extends React.Component {
   }
 
   handleListenerRemove(dragDOM, over) {
-    console.log('remove');
     dragDOM.removeEventListener('dragstart', this.handleDragStart);
     dragDOM.removeEventListener('dragend', this.handleDragEnd);
     /* 移除事件、指针置空 */
@@ -215,7 +210,6 @@ class Box extends React.Component {
     const self = this;
     node.addEventListener('click', this.handleBoxClick);
     node.addEventListener('mousedown', this.handleBoxMousedown);
-    // node.addEventListener('mouseup', this.handleBoxMouseup);
   }
 
   handleBoxMousedownBind(node, mode) {
@@ -234,12 +228,6 @@ class Box extends React.Component {
       this.handleBoxMousedownBind(e.target.parentNode, 'copy');
     }
   }
-
-  // 鼠标松开事件
-  // handleBoxMouseup(e) {
-  //   const self = this;
-  //   console.log('up', e.target);
-  // }
 
   /* 移除当前元素 */
   handleRemove(e) {
