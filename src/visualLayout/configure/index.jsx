@@ -21,14 +21,16 @@ export default class Configure extends React.Component {
       'handleInputChange',
       'handleTreeChange',
       'handleSwitchChange',
-      'handleSelectChange'
+      'handleSelectChange',
+      'handleGroupTreeChange',
+      'handleControlTreeChange'
     ].forEach((m) => {
       this[m] = this[m].bind(this);
     });
   }
 
   render() {
-    const { isSelect, name, placeholder, value, hideLabel, inputType, isMultiSelect, selectOptions, isImage, height, width } = this.state;
+    const { isSelect, name, placeholder, value, hideLabel, inputType, isMultiSelect, selectOptions, isImage, height, width, groupname, groupcontrol, controlname } = this.state;
     const optionsArr = selectOptions && selectOptions.map((item) => {
       return <Select.Option value={item} key={item}>{item}</Select.Option>;
     });
@@ -41,13 +43,27 @@ export default class Configure extends React.Component {
               <div className="withLabel" data-label="name:">
                 <TreeSelect
                   style={{ width: 170 }}
-                  value={this.state.name}
+                  value={name}
                   treeData={this.state.groupData}
                   placeholder="Please select"
                   treeDefaultExpandAll
                   onChange={this.handleTreeChange}
                 />
               </div>
+              {
+                inputType === 'radio' && (
+                  <div className="withLabel" data-label="groupname:">
+                    <TreeSelect
+                      style={{ width: 170 }}
+                      value={groupname}
+                      treeData={this.state.groupData}
+                      placeholder="Please select"
+                      treeDefaultExpandAll
+                      onChange={this.handleGroupTreeChange}
+                    />
+                  </div>
+                )
+              }
               {
                 inputType === 'text' && (
                   <div className="withLabel" data-label="placeholder:">
@@ -59,6 +75,20 @@ export default class Configure extends React.Component {
                 inputType && (
                   <div className="withLabel" data-label="value:">
                     <Input value={value || ''} onChange={e => this.handleInputChange(e, COMPONENT_VALUE)} onBlur={e => this.handleInputBlur(e, COMPONENT_VALUE)} placeholder="value" />
+                  </div>
+                )
+              }
+              {
+                inputType === 'text' && (
+                  <div className="withLabel" data-label="control:">
+                    <TreeSelect
+                      style={{ width: 170 }}
+                      value={controlname || ''}
+                      treeData={groupcontrol}
+                      placeholder="Please select"
+                      treeDefaultExpandAll
+                      onChange={this.handleControlTreeChange}
+                    />
                   </div>
                 )
               }
@@ -132,11 +162,21 @@ export default class Configure extends React.Component {
   handleStateChange() {
     const selectDOM = Store.getState().page.selectDOM;
     let child;
+    const groupcontrol = [];
     if (!selectDOM) return false;
     if (selectDOM.className.indexOf('fan-col') > -1) {
       child = selectDOM;
     } else {
       child = selectDOM.querySelector('.view input') || selectDOM.querySelector('.view').firstChild;
+    }
+    if (child.type === 'text') {
+      document.querySelectorAll('.demo input[type=radio],.demo input[type=checkbox]').forEach((item, index) => {
+        groupcontrol.push({
+          label: item.title,
+          key: item.name + index,
+          value: item.name
+        });
+      });
     }
     this.setState({
       isSelect: !!selectDOM,
@@ -149,6 +189,9 @@ export default class Configure extends React.Component {
       isImage: child.nodeName === 'IMG',
       height: child.style.height,    // 图片的高度
       width: child.style.width,      // 图片的宽度
+      groupname: child.type === 'radio' && child.getAttribute('data-group'),  // 前端控制 radio 单选使用
+      controlname: child.type === 'text' && child.getAttribute('data-control'), // 获取控制输入框的 组件
+      groupcontrol,
     });
   }
 
@@ -170,10 +213,10 @@ export default class Configure extends React.Component {
     }
     const value = e.target.value;
     switch (name) {
-      case COMPONENT_NAME:
-        child.setAttribute(COMPONENT_NAME, value);
-        child.setAttribute('title', value);
-        break;
+      // case COMPONENT_NAME:
+      //   child.setAttribute(COMPONENT_NAME, value);
+      //   child.setAttribute('title', value);
+      //   break;
       case COMPONENT_PLACEHOLDER:
         child.setAttribute(COMPONENT_PLACEHOLDER, value);
         break;
@@ -189,15 +232,13 @@ export default class Configure extends React.Component {
         child.style.height = value ? `${value}px` : 'auto';
         break;
       case 'width':
-        console.log(value);
         child.style.width = value ? `${value}px` : 'auto';
         break;
       default: break;
     }
   }
 
-  handleTreeChange(value) {
-    const self = this;
+  handleTreeChange(value, select, extra) {
     const selectDOM = Store.getState().page.selectDOM;
     let child;
     if (!selectDOM) return false;
@@ -207,7 +248,7 @@ export default class Configure extends React.Component {
       child = selectDOM.querySelector('.view input') || selectDOM.querySelector('.view').firstChild;
     }
     child.setAttribute(COMPONENT_NAME, value);
-    child.setAttribute('title', value);
+    child.setAttribute('title', `${select[0]}${value}`);
     this.setState({ name: value });
   }
 
@@ -253,5 +294,24 @@ export default class Configure extends React.Component {
       optDOM.src = oFREvent.target.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  // 为 单选框 指定所属 组
+  handleGroupTreeChange(value) {
+    const selectDOM = Store.getState().page.selectDOM;
+    const child = selectDOM.querySelector('.view input');
+    if (!selectDOM) return false;
+
+    child.setAttribute('data-group', value);
+    this.setState({ groupname: value });
+  }
+
+  // 为 输入框 指定控制显示隐藏的组件
+  handleControlTreeChange(value) {
+    const self = this;
+    const selectDOM = Store.getState().page.selectDOM;
+    const child = selectDOM.querySelector('.view input');
+    child.setAttribute('data-control', value);
+    this.setState({ controlname: value });
   }
 }

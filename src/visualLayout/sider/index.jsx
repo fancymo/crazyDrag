@@ -28,7 +28,6 @@ export default class Sider extends React.Component {
             <Box inline preview="输入框" ><Input /></Box>
             <Box inline preview="复选框" ><CheckBox /></Box>
             <Box inline preview="单选框" ><Radio /></Box>
-            <Box inline preview="单选框" ><Radio /></Box>
             <Box inline preview="下拉选" ><Select /></Box>
             <Box inline preview="图片" ><Image /></Box>
             <Box inline mode="horizontal" preview="水平间距" />

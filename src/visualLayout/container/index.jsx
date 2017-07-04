@@ -120,6 +120,7 @@ export default class Container extends React.Component {
     const codeModal = this.state.page.codeModal;
     codeModal.visible = false;
     Action.updatePage({ codeModal });
+    location.href = '/#/display';
   }
 
   /* 模版下载 Cancel */
