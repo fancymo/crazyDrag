@@ -20,7 +20,6 @@ class Label extends React.Component {
 
   render() {
     const { editable, text } = this.props;
-    console.log(text);
     return (
       <label htmlFor="label" contentEditable={editable}>{text}</label>
     );

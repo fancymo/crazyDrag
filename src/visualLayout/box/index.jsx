@@ -310,12 +310,14 @@ class Box extends React.Component {
       return false;
     }
 
-    let selectDOM = e.currentTarget;
-    if (e.target.className.indexOf('fan-col') > -1) {
-      selectDOM = e.target;
-    }
+    if (!e.target.classList.contains('space')) {
+      let selectDOM = e.currentTarget;
+      if (e.target.className.indexOf('fan-col') > -1) { // 配置容器
+        selectDOM = e.target;
+      }
 
-    Action.updatePage({ selectDOM });
+      Action.updatePage({ selectDOM });
+    }
   }
 }
 

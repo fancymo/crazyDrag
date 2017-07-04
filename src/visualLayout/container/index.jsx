@@ -22,7 +22,6 @@ function loopChild(node) {
     }
     if (item.classList.contains('demo')) {
       hasChild = true;
-      console.log(item.cloneNode(false).classList.remove('edit'));
       elem = item.cloneNode(false).classList.remove('edit');
     }
     if (item.classList.contains('fan-row')) {
@@ -72,7 +71,9 @@ export default class Container extends React.Component {
           <Button type="primary" onClick={this.handlePreview}>预览</Button>
           <Button type="primary" onClick={this.handleDownload}>下载</Button>
         </div>
-        <form><div className={cls} /></form>
+        <form>
+          <div className={cls} />
+        </form>
         <CodeModal {...this.state} onOk={this.handleDownloadModalOK} onCancel={this.handleDownloadModalCancel} />
       </div>);
   }

@@ -15,6 +15,10 @@ li {
   list-style: none;
 }
 
+select {
+  min-width: 100px;
+}
+
 [class^=opt-] {
   display: inline-block;
   z-index: 500;
@@ -32,27 +36,21 @@ li {
 }
 
 .layout {
-  display: flex;
   height: 100vh;
 }
 
 .layout-sider {
-  padding-top: 15px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  height: 100%;
   width: 200px;
+  padding-top: 15px;
   background-color: #ccc;
   overflow-y: auto;
 
   .accordion-group {
-
-    li {
-
-      &:first-child {
-        padding: 4px;
-        margin-left: -15px;
-        margin-right: -15px;
-        background-color: #aaa;
-      }
-    }
 
     .box {
       width: 170px;
@@ -98,10 +96,9 @@ li {
 }
 
 .layout-container {
-  flex: 1;
   padding: 15px;
   background: #eee;
-
+  margin-left: 200px;
 }
 
 .demo {
@@ -115,20 +112,6 @@ li {
   position: relative;
   word-wrap: break-word;
   background-color: #fff;
-
-  &::after {
-    background-color: #F5F5F5;
-    border: 1px solid #DDDDDD;
-    border-radius: 4px 0 4px 0;
-    color: #9DA0A4;
-    content: "Container";
-    font-size: 12px;
-    font-weight: bold;
-    left: -1px;
-    padding: 3px 7px;
-    position: absolute;
-    top: -1px;
-  }
 
   .box {
 
@@ -150,8 +133,24 @@ li {
 
 // 编辑状态
 .demo.edit {
+
+  &::after {
+    background-color: #F5F5F5;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 0 4px 0;
+    color: #9DA0A4;
+    content: "Container";
+    font-size: 12px;
+    font-weight: bold;
+    left: -1px;
+    padding: 3px 7px;
+    position: absolute;
+    top: -1px;
+  }
+
   .box {
     position: relative;
+    cursor: pointer;
 
     /* space start */
     .pseudo-element{

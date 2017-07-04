@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, TreeSelect, Dropdown, Menu, Switch } from 'antd';
+import { Input, TreeSelect, Dropdown, Menu, Switch, Select } from 'antd';
 import Store from '../store';
 import Action from '../action';
 
@@ -20,14 +20,18 @@ export default class Configure extends React.Component {
       'handleInputBlur',
       'handleInputChange',
       'handleTreeChange',
-      'handleSwitchChange'
+      'handleSwitchChange',
+      'handleSelectChange'
     ].forEach((m) => {
       this[m] = this[m].bind(this);
     });
   }
 
   render() {
-    const { isSelect, name, placeholder, value, hideLabel, inputType } = this.state;
+    const { isSelect, name, placeholder, value, hideLabel, inputType, isMultiSelect, selectOptions, isImage, height, width } = this.state;
+    const optionsArr = selectOptions && selectOptions.map((item) => {
+      return <Select.Option value={item} key={item}>{item}</Select.Option>;
+    });
     return (
       <div id="configure" className="layout-configure">
         { !isSelect && '(未选择组件～)' }
@@ -64,6 +68,33 @@ export default class Configure extends React.Component {
                     <Switch checked={hideLabel} onChange={this.handleSwitchChange} />
                   </div>
                 )
+              }
+              {
+                isMultiSelect && (<div className="withLabel" data-label="options:">
+                  <Select mode="tags" style={{ width: '100%' }} searchPlaceholder="输入下拉内容" onChange={this.handleSelectChange} />
+                </div>)
+              }
+              {
+                isMultiSelect && (<div className="withLabel" data-label="default option:">
+                  <Select style={{ width: '100%' }} searchPlaceholder="选择默认选中选项" onChange={this.handleSelectDefaultChange}>
+                    {optionsArr}
+                  </Select>
+                </div>)
+              }
+              {
+                isImage && (<div className="withLabel" data-label="select image:">
+                  <input type="file" onChange={this.handleImageChange} />
+                </div>)
+              }
+              {
+                isImage && (<div className="withLabel" data-label="width:">
+                  <Input value={width || ''} type="number" onChange={e => this.handleInputChange(e, 'width')} onBlur={e => this.handleInputBlur(e, 'width')} placeholder="width" />
+                </div>)
+              }
+              {
+                isImage && (<div className="withLabel" data-label="height:">
+                  <Input value={height || ''} type="number" onChange={e => this.handleInputChange(e, 'height')} onBlur={e => this.handleInputBlur(e, 'height')} placeholder="height" />
+                </div>)
               }
             </div>
           )
@@ -113,7 +144,11 @@ export default class Configure extends React.Component {
       placeholder: child.type && child.getAttribute(COMPONENT_PLACEHOLDER),
       value: child.type && child.getAttribute(COMPONENT_VALUE),
       inputType: child.type,
-      hideLabel: child.nextSibling && child.nextSibling.style.display === 'none'
+      hideLabel: child.nextSibling && child.nextSibling.style.display === 'none',
+      isMultiSelect: child.nodeName === 'SELECT',   // 是否展示 options
+      isImage: child.nodeName === 'IMG',
+      height: child.style.height,    // 图片的高度
+      width: child.style.width,      // 图片的宽度
     });
   }
 
@@ -143,10 +178,19 @@ export default class Configure extends React.Component {
         child.setAttribute(COMPONENT_PLACEHOLDER, value);
         break;
       case COMPONENT_VALUE:
+        child.value = value;  // input 框的值
         child.setAttribute(COMPONENT_VALUE, value);
-        if (child.nextSibling && child.nodeName === 'LABEL') {
+        child.setAttribute('defaultValue', value);
+        if (child.nextSibling && child.nextSibling.nodeName === 'LABEL') {
           child.nextSibling.innerText = value;
         }
+        break;
+      case 'height':
+        child.style.height = value ? `${value}px` : 'auto';
+        break;
+      case 'width':
+        console.log(value);
+        child.style.width = value ? `${value}px` : 'auto';
         break;
       default: break;
     }
@@ -179,5 +223,35 @@ export default class Configure extends React.Component {
     }
     child.nextSibling.style.display = value ? 'none' : 'inline-block';
     this.setState({ hideLabel: value });
+  }
+
+  handleSelectChange(value) {
+    const self = this;
+    const selectDOM = Store.getState().page.selectDOM;
+    const optDOM = selectDOM.querySelector('.view select');
+    const htmlStr = value.map((item) => {
+      return `<option value="${item}">${item}</option>`;
+    });
+    optDOM.innerHTML = htmlStr;
+    this.setState({ selectOptions: value });
+  }
+
+  handleSelectDefaultChange(value) {
+    const self = this;
+    const selectDOM = Store.getState().page.selectDOM;
+    const optDOM = selectDOM.querySelector('.view select');
+    optDOM.setAttribute('defaultValue', value);
+  }
+
+  handleImageChange(e) {
+    const self = this;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (oFREvent) => {
+      const selectDOM = Store.getState().page.selectDOM;
+      const optDOM = selectDOM.querySelector('.view img');
+      optDOM.src = oFREvent.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 }
