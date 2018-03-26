@@ -96,9 +96,9 @@ class CodeModal extends React.Component {
             }
           });
         } else {
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             this.codeMirrorDOM.setValue(domFrag.innerHTML);
-          }, 0);
+          });
         }
       } else {  // view
         codeView.style.display = 'none';
